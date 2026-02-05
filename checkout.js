@@ -338,6 +338,18 @@ function renderOrderSummary() {
 
     const totalValue = itemsTotal + (deliveryMethod === 'entrega' ? currentShippingCost : 0);
     total.textContent = `R$ ${totalValue.toFixed(2).replace('.', ',')}`;
+
+    // Desabilitar botão se entrega e subtotal < 19.90
+    const submitBtn = document.querySelector('#checkout-form button[type="submit"]');
+    if (submitBtn) {
+        if (deliveryMethod === 'entrega' && itemsTotal < 19.90) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Pedido mínimo não atingido';
+        } else {
+            submitBtn.disabled = false;
+            submitBtn.textContent = t.finalizeOrder;
+        }
+    }
 }
 
 async function fetchAddressByCEP(cep) {
@@ -437,8 +449,8 @@ function toggleAddressFields() {
         cep.required = true;
         address.required = true;
         number.required = true;
-        // Definir frete mínimo para entrega
-        currentShippingCost = 7.00; // R$ 7,00 mínimo
+        // Iniciar frete com R$ 0,00
+        currentShippingCost = 0.00;
         renderOrderSummary();
         // Calcular frete se endereço já preenchido
         if (address.value && number.value) {
