@@ -110,7 +110,8 @@ const checkoutTranslations = {
         addressLabel: '*Endereço:*',
         paymentLabel: '*Pagamento:*',
         notesLabel: '*Observações:*',
-        orderLabel: '*PEDIDO:*'
+        orderLabel: '*PEDIDO:*',
+        minimumOrderWarning: 'Compre mais R${value} para completar o pedido mínimo.'
     },
     en: {
         back: '← Back',
@@ -152,7 +153,8 @@ const checkoutTranslations = {
         addressLabel: '*Address:*',
         paymentLabel: '*Payment:*',
         notesLabel: '*Notes:*',
-        orderLabel: '*ORDER:*'
+        orderLabel: '*ORDER:*',
+        minimumOrderWarning: 'Buy R${value} more to complete the minimum order.'
     }
 };
 
@@ -299,6 +301,15 @@ function renderOrderSummary() {
         </div>
     `).join('');
 
+    const itemsTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    if (itemsTotal < 19.90) {
+        const missing = (19.90 - itemsTotal).toFixed(2).replace('.', ',');
+        summaryHTML += `<div class="mb-4 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+            <p class="text-sm text-yellow-800">${t.minimumOrderWarning.replace('{value}', missing)}</p>
+        </div>`;
+    }
+
     // Adicionar endereço se for entrega
     const deliveryMethod = document.getElementById('delivery-method').value;
     if (deliveryMethod === 'entrega') {
@@ -325,7 +336,6 @@ function renderOrderSummary() {
 
     summary.innerHTML = summaryHTML;
 
-    const itemsTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const totalValue = itemsTotal + (deliveryMethod === 'entrega' ? currentShippingCost : 0);
     total.textContent = `R$ ${totalValue.toFixed(2).replace('.', ',')}`;
 }
