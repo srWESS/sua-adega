@@ -71,7 +71,7 @@ async function calculateShippingCost(destination) {
 // Traduções para checkout
 const checkoutTranslations = {
     pt: {
-        back: '← Voltar',
+        back: 'Voltar',
         title: 'Detalhes da Compra',
         subtitle: 'Preencha suas informações para finalizar o pedido',
         orderSummary: 'Resumo do Pedido',
@@ -114,7 +114,7 @@ const checkoutTranslations = {
         minimumOrderWarning: 'Compre mais R${value} para completar o pedido mínimo.'
     },
     en: {
-        back: '← Back',
+        back: 'Back',
         title: 'Purchase Details',
         subtitle: 'Fill in your information to complete the order',
         orderSummary: 'Order Summary',
@@ -265,12 +265,46 @@ function updateCheckoutLanguage() {
     if (totalLabel) totalLabel.textContent = t.total;
 }
 
+function saveFormData() {
+    const formData = {
+        name: document.getElementById('customer-name').value,
+        phone: document.getElementById('customer-phone').value,
+        deliveryMethod: document.getElementById('delivery-method').value,
+        cep: document.getElementById('customer-cep').value,
+        address: document.getElementById('customer-address').value,
+        number: document.getElementById('customer-number').value,
+        paymentMethod: document.getElementById('payment-method').value,
+        notes: document.getElementById('customer-notes').value
+    };
+    localStorage.setItem('checkoutFormData', JSON.stringify(formData));
+}
+
+function loadFormData() {
+    const savedData = localStorage.getItem('checkoutFormData');
+    if (savedData) {
+        const formData = JSON.parse(savedData);
+        document.getElementById('customer-name').value = formData.name || '';
+        document.getElementById('customer-phone').value = formData.phone || '';
+        document.getElementById('delivery-method').value = formData.deliveryMethod || 'entrega';
+        document.getElementById('customer-cep').value = formData.cep || '';
+        document.getElementById('customer-address').value = formData.address || '';
+        document.getElementById('customer-number').value = formData.number || '';
+        document.getElementById('payment-method').value = formData.paymentMethod || '';
+        document.getElementById('customer-notes').value = formData.notes || '';
+    }
+}
+
+function clearFormData() {
+    localStorage.removeItem('checkoutFormData');
+}
+
 function loadCart() {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
         cart = JSON.parse(savedCart);
         renderOrderSummary();
         updateCheckoutLanguage();
+        loadFormData();
         // Set initial state for delivery method
         toggleAddressFields();
     } else {
@@ -505,8 +539,9 @@ function handleCheckout(event) {
                 cart.map(i => `• ${i.quantity}x ${i.name} - R$ ${(i.price * i.quantity).toFixed(2).replace('.', ',')}`).join('\n') +
                 `\n\n${shippingText}*Total: R$ ${total.toFixed(2).replace('.', ',')}*\n\n${confirmationMsg}`;
 
-    // Clear cart after order
+    // Clear cart and form data after order
     localStorage.removeItem('cart');
+    clearFormData();
 
     // Open WhatsApp in new tab
     window.open(`https://wa.me/5511991854713?text=${encodeURIComponent(msg)}`, '_blank');
@@ -521,12 +556,27 @@ document.getElementById('customer-address').addEventListener('input', () => {
     if (deliveryMethod === 'entrega') {
         updateShippingCost();
     }
+    saveFormData();
 });
 document.getElementById('customer-number').addEventListener('input', () => {
     const deliveryMethod = document.getElementById('delivery-method').value;
     if (deliveryMethod === 'entrega') {
         updateShippingCost();
     }
+    saveFormData();
 });
+
+// Add event listeners to save form data on input changes
+document.getElementById('customer-name').addEventListener('input', saveFormData);
+document.getElementById('customer-phone').addEventListener('input', saveFormData);
+document.getElementById('delivery-method').addEventListener('change', () => {
+    toggleAddressFields();
+    saveFormData();
+});
+document.getElementById('customer-cep').addEventListener('input', saveFormData);
+document.getElementById('customer-address').addEventListener('input', saveFormData);
+document.getElementById('customer-number').addEventListener('input', saveFormData);
+document.getElementById('payment-method').addEventListener('change', saveFormData);
+document.getElementById('customer-notes').addEventListener('input', saveFormData);
 
 window.onload = loadCart;

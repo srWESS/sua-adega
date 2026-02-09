@@ -214,7 +214,10 @@ function filterCategory(cat) {
 }
 
 function searchProducts() {
-    const query = document.getElementById('search-input').value.toLowerCase();
+    const desktopInput = document.getElementById('search-input');
+    const mobileInput = document.getElementById('mobile-search-input');
+    
+    const query = (desktopInput.value || mobileInput.value || '').toLowerCase();
     const filtered = products.filter(p => p.name.toLowerCase().includes(query));
     renderProducts(filtered);
 }
@@ -242,7 +245,7 @@ const translations = {
             mansaoMaromba: 'Mansão Maromba'
         },
         cartTitle: 'Meu Carrinho',
-        close: 'Fechar',
+        close: 'Voltar',
         emptyCart: 'Carrinho vazio',
         total: 'Total:',
         purchaseDetails: 'Detalhes da Compra',
@@ -255,7 +258,7 @@ const translations = {
             instagram: 'Instagram'
         },
         ageWarning: '🚫 Venda proibida para menores de 18 anos',
-        copyright: '&copy; 2023 Sua Adega. Todos os direitos reservados.',
+        copyright: '&copy; 2026 Sua Adega. Todos os direitos reservados.',
         cookieText: 'Este site usa cookies para melhorar sua experiência. Cookies essenciais são sempre permitidos. Aceite para cookies não essenciais (preferências, marketing).',
         accept: 'Aceitar',
         reject: 'Rejeitar'
@@ -274,7 +277,7 @@ const translations = {
             mansaoMaromba: 'Mansao Maromba'
         },
         cartTitle: 'My Cart',
-        close: 'Close',
+        close: 'Back',
         emptyCart: 'Empty cart',
         total: 'Total:',
         purchaseDetails: 'Purchase Details',
@@ -287,7 +290,7 @@ const translations = {
             instagram: 'Instagram'
         },
         ageWarning: '🚫 Sale prohibited to minors under 18',
-        copyright: '&copy; 2023 Your Winery. All rights reserved.',
+        copyright: '&copy; 2026 Your Winery. All rights reserved.',
         cookieText: 'This site uses cookies to improve your experience. Essential cookies are always allowed. Accept for non-essential cookies (preferences, marketing).',
         accept: 'Accept',
         reject: 'Reject'
@@ -317,6 +320,12 @@ function updateLanguage() {
     if (searchInput) {
         searchInput.placeholder = t.searchPlaceholder;
     }
+    
+    // Placeholder da busca mobile
+    const mobileSearchInput = document.getElementById('mobile-search-input');
+    if (mobileSearchInput) {
+        mobileSearchInput.placeholder = t.searchPlaceholder;
+    }
 
     // Título da categoria
     const categoryTitle = document.getElementById('category-title');
@@ -342,7 +351,7 @@ function updateLanguage() {
         const match = onclick.match(/filterCategory\('([^']+)'\)/);
         if (match) {
             const cat = match[1];
-            const textNode = btn.querySelector('.uppercase');
+            const textNode = btn.childNodes[0]; // Pega o texto direto do botão (antes do span da seta)
             if (textNode) {
                 textNode.textContent = t.categories[cat] || cat;
             }
@@ -355,7 +364,7 @@ function updateLanguage() {
         cartTitle.textContent = t.cartTitle;
     }
 
-    const closeBtn = document.querySelector('#cart-sidebar button');
+    const closeBtn = document.getElementById('cart-close-btn');
     if (closeBtn) {
         closeBtn.textContent = t.close;
     }
@@ -370,13 +379,13 @@ function updateLanguage() {
         totalLabel.textContent = t.total;
     }
 
-    const purchaseBtn = document.querySelector('#cart-sidebar button:last-child');
+    const purchaseBtn = document.getElementById('cart-checkout-btn');
     if (purchaseBtn) {
         purchaseBtn.textContent = t.purchaseDetails;
     }
 
     // Modal
-    const modalBtn = document.querySelector('#product-modal button:last-child');
+    const modalBtn = document.getElementById('modal-add-to-cart-btn');
     if (modalBtn) {
         modalBtn.textContent = t.addToCart;
     }
